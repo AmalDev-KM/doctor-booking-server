@@ -41,7 +41,20 @@ router.get('/me', requireDoctor, doctorProfileController.getMyProfile);
 router.delete('/', requireDoctor, doctorProfileController.deleteMyProfile);
 
 // ─── ADMIN ROUTES ────────────────────────────────────────────────────────
-// Only admins can verify profiles
+// Only admins can review and verify profiles
+
+router.get(
+  '/pending',
+  authorize(UserRole.ADMIN),
+  doctorProfileController.getPendingProfiles
+);
+
+router.get(
+  '/admin/:id',
+  authorize(UserRole.ADMIN),
+  doctorProfileController.getProfileByIdAdmin
+);
+
 router.patch(
   '/verify/:id',
   authorize(UserRole.ADMIN),

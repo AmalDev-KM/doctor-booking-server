@@ -63,6 +63,14 @@ const enforceEditLock = (profile: any) => {
   }
 };
 
+// Helper: automatically revert review status when doctor makes changes
+const resetVerificationStatusIfChanged = (profile: any) => {
+  if (profile.verificationStatus === 'change_requested' || profile.verificationStatus === 'rejected') {
+    // Setting back to pending ensures the admin can review the newly updated profile organically
+    profile.verificationStatus = 'pending';
+  }
+};
+
 // ─── INIT ────────────────────────────────────────────────────────────────
 export const initProfile = async (userId: string) => {
   const existingProfile = await DoctorProfile.findOne({ userId });
@@ -78,6 +86,8 @@ export const initProfile = async (userId: string) => {
 export const updateBasicInfo = async (userId: string, data: any) => {
   const profile = await DoctorProfile.findOne({ userId });
   if (!profile) throw new AppError('Profile not found.', HttpStatus.NOT_FOUND);
+
+  resetVerificationStatusIfChanged(profile);
 
   // Basic info is allowed to be edited even if approved
   profile.basicInfo = { ...profile.basicInfo, ...data };
@@ -96,6 +106,8 @@ export const updateProfessionalInfo = async (userId: string, data: any) => {
     throw new AppError('Please complete Basic Info first before proceeding to Professional Info.', HttpStatus.FORBIDDEN);
   }
 
+  resetVerificationStatusIfChanged(profile);
+
   profile.professionalInfo = { ...profile.professionalInfo, ...data };
   await profile.save();
 
@@ -112,6 +124,8 @@ export const addQualification = async (userId: string, data: any) => {
     throw new AppError('Please complete Basic and Professional Info first before adding qualifications.', HttpStatus.FORBIDDEN);
   }
 
+  resetVerificationStatusIfChanged(profile);
+
   profile.qualifications.push(data);
   await profile.save();
 
@@ -124,6 +138,7 @@ export const updateQualification = async (userId: string, index: number, data: a
   if (!profile) throw new AppError('Profile not found.', HttpStatus.NOT_FOUND);
   
   enforceEditLock(profile);
+  resetVerificationStatusIfChanged(profile);
 
   if (index < 0 || index >= profile.qualifications.length) {
     throw new AppError('Qualification index out of bounds.', HttpStatus.BAD_REQUEST);
@@ -141,6 +156,7 @@ export const removeQualification = async (userId: string, index: number) => {
   if (!profile) throw new AppError('Profile not found.', HttpStatus.NOT_FOUND);
 
   enforceEditLock(profile);
+  resetVerificationStatusIfChanged(profile);
 
   if (index < 0 || index >= profile.qualifications.length) {
     throw new AppError('Qualification index out of bounds.', HttpStatus.BAD_REQUEST);
@@ -162,6 +178,8 @@ export const addClinic = async (userId: string, data: any) => {
     throw new AppError('Please complete previous sequential steps before adding a clinic.', HttpStatus.FORBIDDEN);
   }
 
+  resetVerificationStatusIfChanged(profile);
+
   profile.clinics.push(data);
   await profile.save();
 
@@ -174,6 +192,7 @@ export const updateClinic = async (userId: string, index: number, data: any) => 
   if (!profile) throw new AppError('Profile not found.', HttpStatus.NOT_FOUND);
 
   enforceEditLock(profile);
+  resetVerificationStatusIfChanged(profile);
 
   if (index < 0 || index >= profile.clinics.length) {
     throw new AppError('Clinic index out of bounds.', HttpStatus.BAD_REQUEST);
@@ -192,6 +211,7 @@ export const removeClinic = async (userId: string, index: number) => {
 
   // Note: user specifically mentioned that CLINICS CAN be deleted when approved.
   // So no enforceEditLock(profile) here!
+  resetVerificationStatusIfChanged(profile);
 
   if (index < 0 || index >= profile.clinics.length) {
     throw new AppError('Clinic index out of bounds.', HttpStatus.BAD_REQUEST);
@@ -208,7 +228,7 @@ export const removeClinic = async (userId: string, index: number) => {
 export const getProfileByUserId = async (userId: string) => {
   const profile = await DoctorProfile.findOne({ userId, isDeleted: false })
     .populate('userId', 'email role status')
-    .populate('departmentId', 'departmentName'); // Assumes Department has departmentName
+    .populate('departmentId', 'departmentName');
 
   if (!profile) throw new AppError('Profile not found.', HttpStatus.NOT_FOUND);
 
@@ -225,16 +245,49 @@ export const deleteProfile = async (userId: string) => {
   return returnProfileWithStep(profile);
 };
 
-// ─── ADMIN: VERIFY ───────────────────────────────────────────────────────
-export const verifyProfile = async (profileId: string, status: 'pending' | 'approved' | 'rejected') => {
+// ─── ADMIN: VERIFY AND REVIEW ──────────────────────────────────────────────
+
+export const getPendingProfiles = async () => {
+  // Fetch profiles that finished their form (completed) but are waiting for admin action
+  // This could mean strictly 'pending' or include 'change_requested' if you want admins to see everything unresolved
+  const profiles = await DoctorProfile.find({
+    isProfileCompleted: true,
+    verificationStatus: 'pending',
+    isDeleted: false,
+  })
+    .select('basicInfo professionalInfo verificationStatus isProfileCompleted createdAt userId')
+    .populate('userId', 'email status');
+
+  return profiles;
+};
+
+export const getProfileByIdAdmin = async (profileId: string) => {
+  const profile = await DoctorProfile.findById(profileId)
+    .populate('userId', 'email role status')
+    .populate('departmentId', 'departmentName');
+
+  if (!profile) throw new AppError('Profile not found.', HttpStatus.NOT_FOUND);
+
+  return returnProfileWithStep(profile);
+};
+
+export const verifyProfile = async (
+  profileId: string,
+  status: 'pending' | 'approved' | 'rejected' | 'change_requested',
+  feedback?: string
+) => {
   const profile = await DoctorProfile.findById(profileId);
   if (!profile) throw new AppError('Profile not found.', HttpStatus.NOT_FOUND);
 
-  if (profile.verificationStatus === status) {
-    throw new AppError(`Profile is already ${status}.`, HttpStatus.BAD_REQUEST);
+  if (profile.verificationStatus === status && profile.adminFeedback === feedback) {
+    throw new AppError(`Profile is already ${status} with the same feedback.`, HttpStatus.BAD_REQUEST);
   }
 
   profile.verificationStatus = status;
+  if (feedback !== undefined) {
+    profile.adminFeedback = feedback;
+  }
+  
   await profile.save();
 
   return returnProfileWithStep(profile);
