@@ -11,8 +11,8 @@ import { UserRole } from '../constants';
 
 const router = Router();
 
-// Protect ALL department routes - Only Admins can manage or view departments from this endpoint for now
-router.use(authenticate, authorize(UserRole.ADMIN));
+// Protect ALL department routes - Require authentication
+router.use(authenticate);
 
 /**
  * @route   POST /api/departments
@@ -21,6 +21,7 @@ router.use(authenticate, authorize(UserRole.ADMIN));
  */
 router.post(
   '/',
+  authorize(UserRole.ADMIN),
   upload.single('departmentImage'),
   validate(createDepartmentValidator),
   departmentController.createDepartment
@@ -29,7 +30,7 @@ router.post(
 /**
  * @route   GET /api/departments
  * @desc    Get all departments
- * @access  Private (Admin only)
+ * @access  Private (Any logged-in user)
  */
 router.get('/', departmentController.getDepartments);
 
@@ -38,7 +39,7 @@ router.get('/', departmentController.getDepartments);
  * @desc    Get a single department by ID
  * @access  Private (Admin only)
  */
-router.get('/:id', departmentController.getDepartmentById);
+router.get('/:id', authorize(UserRole.ADMIN), departmentController.getDepartmentById);
 
 /**
  * @route   PUT /api/departments/:id
@@ -47,6 +48,7 @@ router.get('/:id', departmentController.getDepartmentById);
  */
 router.put(
   '/:id',
+  authorize(UserRole.ADMIN),
   upload.single('departmentImage'),
   validate(updateDepartmentValidator),
   departmentController.updateDepartment
@@ -57,6 +59,6 @@ router.put(
  * @desc    Delete a department by ID
  * @access  Private (Admin only)
  */
-router.delete('/:id', departmentController.deleteDepartment);
+router.delete('/:id', authorize(UserRole.ADMIN), departmentController.deleteDepartment);
 
 export default router;

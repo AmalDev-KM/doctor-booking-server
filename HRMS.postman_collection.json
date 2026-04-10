@@ -21,6 +21,18 @@
       "value": "",
       "type": "string",
       "description": "Manually paste the token received in the reset-password email"
+    },
+    {
+      "key": "department_id",
+      "value": "",
+      "type": "string",
+      "description": "Set this to a department ID to use in GET/PUT/DELETE requests."
+    },
+    {
+      "key": "profile_id",
+      "value": "",
+      "type": "string",
+      "description": "ID of the doctor profile to verify"
     }
   ],
   "item": [
@@ -31,8 +43,12 @@
         "header": [],
         "url": {
           "raw": "{{base_url}}/health",
-          "host": ["{{base_url}}"],
-          "path": ["health"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "health"
+          ]
         },
         "description": "Verify the API is running."
       },
@@ -62,8 +78,13 @@
             },
             "url": {
               "raw": "{{base_url}}/auth/register",
-              "host": ["{{base_url}}"],
-              "path": ["auth", "register"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
             },
             "description": "Register a new user. An OTP will be sent to the provided email.\n\n**Roles:** `ADMIN`, `DOCTOR`, `PATIENT`\n\n**Password rules:** Min 8 chars, must include uppercase, lowercase, number, and special char (@$!%*?&)."
           },
@@ -90,8 +111,13 @@
             },
             "url": {
               "raw": "{{base_url}}/auth/verify-otp",
-              "host": ["{{base_url}}"],
-              "path": ["auth", "verify-otp"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "verify-otp"
+              ]
             },
             "description": "Verify the email using the 6-digit OTP sent during registration. OTP expires in 10 minutes."
           },
@@ -133,8 +159,13 @@
             },
             "url": {
               "raw": "{{base_url}}/auth/login",
-              "host": ["{{base_url}}"],
-              "path": ["auth", "login"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             },
             "description": "Login with verified credentials. Returns a JWT token.\n\n**Auto-saves token** to `{{auth_token}}` collection variable via the Tests script."
           },
@@ -161,8 +192,13 @@
             },
             "url": {
               "raw": "{{base_url}}/auth/forgot-password",
-              "host": ["{{base_url}}"],
-              "path": ["auth", "forgot-password"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "forgot-password"
+              ]
             },
             "description": "Sends a password reset link/token to the provided email. Always returns success to prevent user enumeration."
           },
@@ -189,8 +225,13 @@
             },
             "url": {
               "raw": "{{base_url}}/auth/reset-password",
-              "host": ["{{base_url}}"],
-              "path": ["auth", "reset-password"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "reset-password"
+              ]
             },
             "description": "Reset the password using the token from the reset email.\n\nPaste the token into the `reset_token` collection variable, or directly in the body."
           },
@@ -223,8 +264,13 @@
             },
             "url": {
               "raw": "{{base_url}}/auth/register",
-              "host": ["{{base_url}}"],
-              "path": ["auth", "register"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
             },
             "description": "Intentionally bad request to test Joi validation error responses. Expects 422 Unprocessable Entity."
           },
@@ -251,8 +297,13 @@
             },
             "url": {
               "raw": "{{base_url}}/auth/login",
-              "host": ["{{base_url}}"],
-              "path": ["auth", "login"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             },
             "description": "Tests incorrect credentials. Expects 401 Unauthorized."
           },
@@ -279,14 +330,490 @@
             },
             "url": {
               "raw": "{{base_url}}/auth/verify-otp",
-              "host": ["{{base_url}}"],
-              "path": ["auth", "verify-otp"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "verify-otp"
+              ]
             },
             "description": "Tests an invalid OTP. Expects 400 Bad Request."
           },
           "response": []
         }
       ]
+    },
+    {
+      "name": "Departments",
+      "description": "Admin only routes to manage departments",
+      "item": [
+        {
+          "name": "Create Department",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Cardiology",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Heart and cardiovascular system",
+                  "type": "text"
+                },
+                {
+                  "key": "departmentImage",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/departments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "departments"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Departments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/departments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "departments"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Department By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/departments/{{department_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "departments",
+                "{{department_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Department",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Advanced Cardiology",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "description",
+                  "value": "Advanced Heart and cardiovascular system",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "isActive",
+                  "value": "true",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "departmentImage",
+                  "type": "file",
+                  "src": [],
+                  "disabled": true
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/departments/{{department_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "departments",
+                "{{department_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Department",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/departments/{{department_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "departments",
+                "{{department_id}}"
+              ]
+            }
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{auth_token}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Doctor Profile",
+      "description": "Routes for managing Doctor Profiles sequentially. (Doctor & Admin)",
+      "item": [
+        {
+          "name": "1. Init Profile",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/doctor-profile/init",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "doctor-profile",
+                "init"
+              ]
+            },
+            "description": "Initialize an empty profile for the logged in doctor."
+          }
+        },
+        {
+          "name": "2. Update Basic Info",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"phoneNumber\": \"1234567890\",\n  \"email\": \"doctor@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/doctor-profile/basic-info",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "doctor-profile",
+                "basic-info"
+              ]
+            }
+          }
+        },
+        {
+          "name": "3. Update Professional Info",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"specialization\": \"Cardiology\",\n  \"totalExperience\": 10,\n  \"consultationFee\": 500\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/doctor-profile/professional-info",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "doctor-profile",
+                "professional-info"
+              ]
+            }
+          }
+        },
+        {
+          "name": "4. Add Qualification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"degree\": \"MBBS\",\n  \"university\": \"Oxford\",\n  \"yearOfCompletion\": 2010\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/doctor-profile/qualifications",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "doctor-profile",
+                "qualifications"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Qualification",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"degree\": \"MD\",\n  \"university\": \"Harvard\",\n  \"yearOfCompletion\": 2015\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/doctor-profile/qualifications/0",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "doctor-profile",
+                "qualifications",
+                "0"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Remove Qualification",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/doctor-profile/qualifications/0",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "doctor-profile",
+                "qualifications",
+                "0"
+              ]
+            }
+          }
+        },
+        {
+          "name": "5. Add Clinic",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clinicName\": \"Heart Care\",\n  \"addressLine1\": \"123 Main St\",\n  \"city\": \"New York\",\n  \"state\": \"NY\",\n  \"country\": \"USA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/doctor-profile/clinics",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "doctor-profile",
+                "clinics"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Clinic",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clinicName\": \"Advanced Heart Care\",\n  \"addressLine1\": \"123 Main St\",\n  \"city\": \"New York\",\n  \"state\": \"NY\",\n  \"country\": \"USA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/doctor-profile/clinics/0",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "doctor-profile",
+                "clinics",
+                "0"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Remove Clinic",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/doctor-profile/clinics/0",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "doctor-profile",
+                "clinics",
+                "0"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/doctor-profile/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "doctor-profile",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Soft Delete Profile",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/doctor-profile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "doctor-profile"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Verify Profile (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"approved\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/doctor-profile/verify/{{profile_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "doctor-profile",
+                "verify",
+                "{{profile_id}}"
+              ]
+            }
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{auth_token}}",
+            "type": "string"
+          }
+        ]
+      }
     }
   ]
 }
