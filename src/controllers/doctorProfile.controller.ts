@@ -81,9 +81,20 @@ export const deleteMyProfile = asyncHandler(async (req: Request, res: Response) 
 });
 
 // ─── ADMIN: VERIFY ───────────────────────────────────────────────────────
+export const getPendingProfiles = asyncHandler(async (req: Request, res: Response) => {
+  const profiles = await doctorProfileService.getPendingProfiles();
+  sendSuccess(res, 'Pending profiles retrieved successfully.', profiles);
+});
+
+export const getProfileByIdAdmin = asyncHandler(async (req: Request, res: Response) => {
+  const profileId = req.params.id as string;
+  const profile = await doctorProfileService.getProfileByIdAdmin(profileId);
+  sendSuccess(res, 'Profile retrieved successfully.', profile);
+});
+
 export const verifyProfile = asyncHandler(async (req: Request, res: Response) => {
   const profileId = req.params.id as string;
-  const { status } = req.body;
-  const profile = await doctorProfileService.verifyProfile(profileId, status);
+  const { status, adminFeedback } = req.body;
+  const profile = await doctorProfileService.verifyProfile(profileId, status, adminFeedback);
   sendSuccess(res, `Profile status updated to ${status}.`, profile);
 });

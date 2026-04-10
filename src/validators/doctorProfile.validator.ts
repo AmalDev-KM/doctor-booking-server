@@ -94,8 +94,9 @@ export const clinicValidator = Joi.object({
 
 // ─── Admin Verify Validator ────────────────────────────────────────────────
 export const verifyProfileValidator = Joi.object({
-  status: Joi.string().valid('pending', 'approved', 'rejected').required().messages({
-    'any.only': 'Verify status must be pending, approved or rejected.',
+  status: Joi.string().valid('pending', 'approved', 'rejected', 'change_requested').required().messages({
+    'any.only': 'Verify status must be pending, approved, rejected, or change_requested.',
     'any.required': 'Status is required.',
   }),
+  adminFeedback: Joi.string().trim().optional(),
 });

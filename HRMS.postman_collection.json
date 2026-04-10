@@ -783,7 +783,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"status\": \"approved\"\n}",
+              "raw": "{\n  \"status\": \"change_requested\",\n  \"adminFeedback\": \"Please upload a clearer image of your degree.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -801,6 +801,43 @@
                 "{{profile_id}}"
               ]
             }
+          }
+        },
+        {
+          "name": "Get Pending Profiles (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/doctor-profile/pending",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "doctor-profile",
+                "pending"
+              ]
+            },
+            "description": "Fetch all fully completed profiles that are currently awaiting admin review."
+          }
+        },
+        {
+          "name": "Get Profile Detail (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/doctor-profile/admin/{{profile_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "doctor-profile",
+                "admin",
+                "{{profile_id}}"
+              ]
+            },
+            "description": "Fetch full detailed view of a profile by its ID directly."
           }
         }
       ],

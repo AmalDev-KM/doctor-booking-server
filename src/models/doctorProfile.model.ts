@@ -201,8 +201,12 @@ const DoctorProfileSchema = new Schema(
 
     verificationStatus: {
       type: String,
-      enum: ["pending", "approved", "rejected"],
+      enum: ["pending", "approved", "rejected", "change_requested"],
       default: "pending",
+    },
+
+    adminFeedback: {
+      type: String,
     },
 
     isProfileCompleted: {
